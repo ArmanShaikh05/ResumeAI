@@ -12,7 +12,7 @@ export const getUserSubscriptionLevel = cache(
       },
     });
 
-    if (!subscription || subscription.stripeCurrentPeriodEnd < new Date()) {
+    if (!subscription) {
       return "free";
     }
 
