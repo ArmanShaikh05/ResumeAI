@@ -39,9 +39,9 @@ const Page = async () => {
   return (
     <main className="container mx-auto w-full px-3 py-6 space-y-6">
       <div className="space-y-1 flex items-center justify-between">
-        <h1 className="text-3xl font-bold">
+        <h1 className="text-xl md:text-3xl font-bold">
           Your resumes{" "}
-          <span className="text-lg font-normal">( {totalCount} )</span>
+          <span className="text-sm md:text-lg font-normal">( {totalCount} )</span>
         </h1>
         <CreateResumeButton
           canCreate={canCreateResume(subscriptionLevel, totalCount)}

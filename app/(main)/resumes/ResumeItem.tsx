@@ -46,7 +46,7 @@ const MoreMenu = ({
           <Button
             size={"icon"}
             variant={"ghost"}
-            className="absolute right-0.5 top-0.5 opacity-0 group-hover:opacity-100"
+            className="absolute right-0.5 top-0.5 opacity-100 md:opacity-0 md:group-hover:opacity-100"
           >
             <MoreVertical size={4} />
           </Button>
