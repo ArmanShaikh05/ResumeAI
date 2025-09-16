@@ -1,3 +1,6 @@
+"use client";
+
+import { createCheckoutSession } from "@/actions/stripeActions";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -6,13 +9,18 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { env } from "@/env";
+import { useUser } from "@clerk/nextjs";
 import { Check, Crown } from "lucide-react";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { toast } from "sonner";
 
 const Pricing = () => {
   const plans = [
     {
       name: "Basic",
+      label: "basic",
       price: "Free",
       period: "Forever",
       description: "Perfect for getting started",
@@ -25,10 +33,10 @@ const Pricing = () => {
       buttonText: "Get Started",
       buttonVariant: "outline" as const,
       popular: false,
-      link: "/resumes",
     },
     {
       name: "Pro",
+      label: "pro",
       price: "$9.99",
       period: "/month",
       description: "Most popular for job seekers",
@@ -43,11 +51,11 @@ const Pricing = () => {
       buttonText: "Start Free Trial",
       buttonVariant: "default" as const,
       popular: true,
-      link: "",
     },
     {
-      name: "Enterprise",
-      price: "$29.99",
+      name: "Pro Plus",
+      label: "pro_plus",
+      price: "$19.99",
       period: "/month",
       description: "For teams and career services",
       features: [
@@ -61,9 +69,43 @@ const Pricing = () => {
       buttonText: "Contact Sales",
       buttonVariant: "outline" as const,
       popular: false,
-      link: "",
     },
   ];
+
+  const [loading, setLoading] = useState(false);
+  const router = useRouter();
+  const { user } = useUser();
+
+  const handleClick = async (planName: string) => {
+    if (!user?.id) {
+      router.push("/sign-in");
+    }
+
+    try {
+      setLoading(true);
+
+      if (planName === "pro") {
+        const redirectUrl = await createCheckoutSession(
+          env.NEXT_PUBLIC_PRO_PRICE_ID
+        );
+        window.location.href = redirectUrl;
+      } else if (planName === "pro_plus") {
+        const redirectUrl = await createCheckoutSession(
+          env.NEXT_PUBLIC_PRO_PLUS_PRICE_ID
+        );
+        window.location.href = redirectUrl;
+      } else {
+        router.push("/resumes");
+      }
+    } catch (error) {
+      console.log(error);
+      toast("Something went wrong", {
+        description: "Please try again",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <section className="py-24 bg-background" id="pricing">
@@ -124,19 +166,19 @@ const Pricing = () => {
                 </ul>
               </CardContent>
               <CardFooter>
-                <Link href={plan.link} className="w-full">
-                  <Button
-                    className={`w-full transition-smooth ${
-                      plan.popular
-                        ? "bg-gradient-to-br from-ai-emerald to-ai-teal text-white shadow-primary hover:shadow-glow"
-                        : ""
-                    }`}
-                    variant={plan.buttonVariant}
-                    size="lg"
-                  >
-                    {plan.buttonText}
-                  </Button>
-                </Link>
+                <Button
+                  disabled={loading}
+                  onClick={() => handleClick(plan.label)}
+                  className={`w-full transition-smooth ${
+                    plan.popular
+                      ? "bg-gradient-to-br from-ai-emerald to-ai-teal text-white shadow-primary hover:shadow-glow"
+                      : ""
+                  }`}
+                  variant={plan.buttonVariant}
+                  size="lg"
+                >
+                  {plan.buttonText}
+                </Button>
               </CardFooter>
             </Card>
           ))}
